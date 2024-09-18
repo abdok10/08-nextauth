@@ -24,7 +24,7 @@ const register = async (formData: FormData) => {
   // hash password
   const hashedPassword = await hash(password, 10);
   await User.create({ firstname, lastname, email, password: hashedPassword });
-  console.log("User created successfully");
+  console.log("User created successfully!");
   redirect("/login");
 };
 
