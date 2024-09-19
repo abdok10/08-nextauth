@@ -1,12 +1,14 @@
-"use client";
-
-import * as React from "react";
 import Link from "next/link";
 
 import { Button } from "./ui/button";
 import { Menu } from "lucide-react";
+import { getSession } from "@lib/getSession";
+import { signOut } from "@auth";
 
-export function Navigation() {
+export async function Navigation() {
+  const session = await getSession();
+  const user = session?.user;
+
   return (
     <nav className="bg-white shadow-md fixed top-5 left-5 right-5 rounded-lg">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -29,9 +31,19 @@ export function Navigation() {
             >
               Dashboard
             </Link>
-            <Link href="/register">
+            {user ? (
+              <form action={async () => {
+                "use server"
+                await signOut()
+              }}>
+                <Button>Logout</Button>
+              </form>
+            ) : (
+
+              <Link href="/register">
               <Button>Register</Button>
             </Link>
+            )}
           </div>
           <div className="md:hidden flex items-center">
             <button

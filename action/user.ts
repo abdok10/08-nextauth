@@ -1,19 +1,15 @@
 "use server";
 
-import connectDB from "@lib/db";
-import { User } from "@models/User";
+import connectDB from "@/lib/db";
+import { User } from "@/models/User";
 import { redirect } from "next/navigation";
 import { hash } from "bcryptjs";
-import { signIn } from "@auth";
 import { CredentialsSignin } from "next-auth";
+import { signIn } from "@/auth";
 
 const login = async (formData: FormData) => {
   const email = formData.get("email") as string;
   const password = formData.get("password") as string;
-
-  if (!email || !password) {
-    throw new Error("Please fill all fields");
-  }
 
   try {
     await signIn("credentials", {
@@ -22,22 +18,20 @@ const login = async (formData: FormData) => {
       email,
       password,
     });
-    
-  } catch (err) {
-    const error = err as CredentialsSignin;
-    return error.message;
+  } catch (error) {
+    const someError = error as CredentialsSignin;
+    return someError.cause;
   }
-  
   redirect("/");
 };
 
 const register = async (formData: FormData) => {
-  const firstname = formData.get("firstname") as string;
-  const lastname = formData.get("lastname") as string;
+  const firstName = formData.get("firstname") as string;
+  const lastName = formData.get("lastname") as string;
   const email = formData.get("email") as string;
   const password = formData.get("password") as string;
 
-  if (!firstname || !lastname || !email || !password) {
+  if (!firstName || !lastName || !email || !password) {
     throw new Error("Please fill all fields");
   }
 
@@ -47,11 +41,17 @@ const register = async (formData: FormData) => {
   const existingUser = await User.findOne({ email });
   if (existingUser) throw new Error("User already exists");
 
-  // hash password
-  const hashedPassword = await hash(password, 10);
-  await User.create({ firstname, lastname, email, password: hashedPassword });
-  console.log("User created successfully!");
+  const hashedPassword = await hash(password, 12);
+
+  await User.create({ firstName, lastName, email, password: hashedPassword });
+  console.log(`User created successfully 🥂`);
   redirect("/login");
 };
 
-export { login, register };
+const fetchAllUsers = async () => {
+  await connectDB();
+  const users = await User.find({});
+  return users;
+};
+
+export { register, login, fetchAllUsers };
