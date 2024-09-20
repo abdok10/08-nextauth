@@ -13,7 +13,7 @@ import { redirect } from "next/navigation";
 const Dashboard = async () => {
   const session = await getSession();
   const user = session?.user;
-  if (!user) return redirect("/");
+  if (!user) return redirect("/register");
 
   return (
     <div className="flex min-h-screen">

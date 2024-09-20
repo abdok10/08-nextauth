@@ -26,12 +26,12 @@ const login = async (formData: FormData) => {
 };
 
 const register = async (formData: FormData) => {
-  const firstName = formData.get("firstname") as string;
-  const lastName = formData.get("lastname") as string;
+  const firstname = formData.get("firstname") as string;
+  const lastname = formData.get("lastname") as string;
   const email = formData.get("email") as string;
   const password = formData.get("password") as string;
 
-  if (!firstName || !lastName || !email || !password) {
+  if (!firstname || !lastname || !email || !password) {
     throw new Error("Please fill all fields");
   }
 
@@ -43,7 +43,7 @@ const register = async (formData: FormData) => {
 
   const hashedPassword = await hash(password, 12);
 
-  await User.create({ firstName, lastName, email, password: hashedPassword });
+  await User.create({ firstname, lastname, email, password: hashedPassword });
   console.log(`User created successfully 🥂`);
   redirect("/login");
 };

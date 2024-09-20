@@ -39,7 +39,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         const user = await User.findOne({ email }).select("+password +role");
 
         if (!user) {
-          throw new Error("Invalid email or password");
+          throw new Error("No user found with this email");
         }
 
         if (!user.password) {
@@ -49,12 +49,12 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         const isMatched = await compare(password, user.password);
 
         if (!isMatched) {
-          throw new Error("Password did not matched");
+          throw new Error("Incorrect password");
         }
 
         const userData = {
-          firstName: user.firstName,
-          lastName: user.lastName,
+          firstname: user.firstname,
+          lastname: user.lastname,
           email: user.email,
           role: user.role,
           id: user._id,
@@ -70,10 +70,14 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
   },
 
   callbacks: {
+    
     async session({ session, token }) {
       if (token?.sub && token?.role) {
-        session.user.id = token.sub;
-        session.user.role = token.role;
+        session.user = {
+          ...session.user,
+          id: token.sub,
+          role: token.role,
+        };
       }
       return session;
     },
@@ -90,23 +94,27 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         try {
           const { email, name, image, id } = user;
           await connectDB();
-          const alreadyUser = await User.findOne({ email });
 
-          if (!alreadyUser) {
+          // Check if the user already exists
+          const existingUser = await User.findOne({ email });
+
+          // If the user doesn't exist, create them
+          if (!existingUser) {
             await User.create({ email, name, image, authProviderId: id });
-          } else {
-            return true;
           }
+
+          return true; // Return true after processing the user
         } catch (error) {
+          console.error("Error while creating user: ", error);
           throw new Error("Error while creating user");
         }
       }
 
       if (account?.provider === "credentials") {
         return true;
-      } else {
-        return false;
       }
+
+      return false; // Fallback for other providers
     },
   },
 });
