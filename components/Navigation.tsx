@@ -31,6 +31,12 @@ export async function Navigation() {
             >
               Dashboard
             </Link>
+            <Link
+              href="/localisation"
+              className="text-gray-700 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium"
+            >
+              Localisation
+            </Link>
             {user ? (
               <form action={async () => {
                 "use server"
